@@ -1,14 +1,19 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
-import Profile from "./pages/Profile"
-import Login from "./pages/Login"
-import Home from "./pages/Home"
-import bgImage from "./assets/bgImage.svg"
-import { Toaster } from "react-hot-toast"
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 import { useAuth } from "./context/AuthContext";
 
-const App = () => {
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Profile from "./pages/Profile";
 
-  const { authUser, loading } = useAuth();
+import ProtectedRoute from "./components/ProtectedRoute";
+import PublicRoute from "./components/PublicRoute";
+import AppLayout from "./layouts/AppLayout";
+
+import bgImage from "./assets/bgImage.svg";
+
+const App = () => {
+  const { loading } = useAuth();
 
   if (loading) {
     return (
@@ -19,18 +24,32 @@ const App = () => {
   }
 
   return (
-    <div style={{ backgroundImage: `url(${bgImage})` }}
-      className="bg-contain">
-      <BrowserRouter>
-        <Toaster />
+    <BrowserRouter>
+      <div
+        className="min-h-screen bg-cover"
+        style={{ backgroundImage: `url(${bgImage})` }}
+      >
+        <Toaster position="top-right" />
         <Routes>
-          <Route path="/" element={authUser ? <Home /> : <Navigate to="/login" replace />} />
-          <Route path="/login" element={authUser ? <Navigate to="/" replace /> : <Login />} />
-          <Route path="/profile" element={authUser ? <Profile /> : <Navigate to="/login" replace />} />
-        </Routes>
-      </BrowserRouter>
-    </div>
-  )
-}
+          {/* Public route */}
+          <Route element={<PublicRoute />}>
+            <Route path="/login" element={<Login />} />
+          </Route>
 
-export default App
+          {/* Protected routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route element={<AppLayout />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/profile" element={<Profile />} />
+            </Route>
+          </Route>
+
+          {/* Fallback */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </div>
+    </BrowserRouter>
+  );
+};
+
+export default App;

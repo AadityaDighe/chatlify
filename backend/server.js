@@ -36,7 +36,7 @@ io.on('connection', (socket) => {
 
     const userId = socket.handshake.query.userId;
 
-    console.log('A user connected:', userId, socket.id);
+    console.log('A user connected:', userId);
     // Handle socket events here
 
     if (userId) {
