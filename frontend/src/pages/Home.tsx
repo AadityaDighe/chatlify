@@ -1,45 +1,34 @@
-import { useState } from "react";
-import ChatContainer from "../components/chatContainer/ChatContainer";
-import RightSidebar from "../components/RightSidebar";
 import Sidebar from "../components/Sidebar";
-import { useChat } from "../context/ChatContext";
+import ChatContainer from "../components/chat/ChatContainer";
+import RightSidebar from "../components/RightSidebar";
+import { useChatStore } from "../store/chat.store";
+
 
 const Home = () => {
-    const { selectedUser } = useChat();
-    const [showRightSidebar, setShowRightSidebar] = useState(false);
+    const selectedUser = useChatStore((s) => s.selectedUser);
+    const showRightSidebar = useChatStore((s) => s.showRightSidebar);
 
     return (
-        <div className="w-full h-screen sm:px-[15%] sm:py-[5%]">
-            <div className="relative h-full border-2 border-gray-600 rounded-2xl overflow-hidden backdrop-blur-xl">
+        <div className="w-full h-dvh bg-gradient-to-br from-gray-950 via-indigo-950/30 to-gray-950">
+            <div className="relative h-full border border-gray-700/50 rounded-xl md:rounded-2xl overflow-hidden backdrop-blur-xl shadow-2xl">
 
-                {/* DESKTOP GRID */}
-                <div className={`hidden md:grid h-full ${selectedUser ? showRightSidebar ? "grid-cols-[1fr_2fr_1fr]" : "grid-cols-[1fr_3fr]" : "grid-cols-2"}`}>
+                <div className={` hidden md:grid h-full ${showRightSidebar && selectedUser ? "md:grid-cols-[320px_1fr_340px]" : "md:grid-cols-[320px_1fr]"}`} >
+
                     <Sidebar />
-                    <ChatContainer
-                        showRightSidebar={showRightSidebar}
-                        setShowRightSidebar={setShowRightSidebar}
-                    />
-                    {showRightSidebar && <RightSidebar />}
+                    <ChatContainer />
+                    {selectedUser && showRightSidebar && <RightSidebar />}
+
                 </div>
 
-                {/* MOBILE STACK */}
-                <div className="md:hidden h-full">
+                <div className="md:hidden h-full flex flex-col">
                     {!selectedUser && <Sidebar />}
-
-                    {selectedUser && !showRightSidebar && (
-                        <ChatContainer
-                            showRightSidebar={showRightSidebar}
-                            setShowRightSidebar={setShowRightSidebar}
-                        />
-                    )}
-
-                    {showRightSidebar && (
-                        <RightSidebar onClose={() => setShowRightSidebar(false)} />
-                    )}
+                    {selectedUser && !showRightSidebar && <ChatContainer />}
+                    {selectedUser && showRightSidebar && <RightSidebar mobile={true} />}
                 </div>
             </div>
         </div>
     );
 };
 
-export default Home;
+
+export default Home

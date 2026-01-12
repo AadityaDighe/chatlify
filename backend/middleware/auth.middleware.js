@@ -1,37 +1,14 @@
-// import User from "../models/User.js";
-
-// export const protectedRoute = async (req, res, next) => {
-//     const token = req.header.token;
-//     if (!token) {
-//         return res.status(401).json({ message: 'No token, authorization denied' });
-//     }
-//     try {
-//         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-//         const user = await User.findById(decoded.userId).select('-password');
-
-//         if (!user) {
-//             return res.status(401).json({ success: false, message: 'User not found' });
-//         }
-//         req.user = user;
-//         next();
-//     } catch (error) {
-//         res.status(401).json({ success: false, message: 'Token is not valid' });
-//     }
-// };
-
-
-
 import jwt from "jsonwebtoken";
-import User from "../models/User.js";
+import User from "../src/models/User.js";
 
-export const protectedRoute = async (req, res, next) => {
+export const authenticate = async (req, res, next) => {
     try {
         const authHeader = req.headers.authorization;
 
-        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        if (!authHeader?.startsWith("Bearer ")) {
             return res.status(401).json({
                 success: false,
-                message: "No token, authorization denied",
+                message: "Not authorized",
             });
         }
 
@@ -39,12 +16,19 @@ export const protectedRoute = async (req, res, next) => {
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
+        if (!decoded?.id) {
+            return res.status(401).json({
+                success: false,
+                message: "Not authorized",
+            });
+        }
+
         const user = await User.findById(decoded.id).select("-password");
 
         if (!user) {
             return res.status(401).json({
                 success: false,
-                message: "User not found",
+                message: "Not authorized",
             });
         }
 
@@ -53,7 +37,7 @@ export const protectedRoute = async (req, res, next) => {
     } catch (error) {
         return res.status(401).json({
             success: false,
-            message: "Token is not valid",
+            message: "Not authorized",
         });
     }
 };

@@ -1,9 +1,17 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuthStore } from "../store/auth.store";
 
 const PublicRoute = () => {
-    const { authUser } = useAuth();
+    const authUser = useAuthStore((s) => s.authUser);
+    const loading = useAuthStore((s) => s.loading);
 
+    if (loading) {
+        return (
+            <div className="h-screen flex items-center justify-center text-white">
+                Loading...
+            </div>
+        );
+    }
     if (authUser) {
         return <Navigate to="/" replace />;
     }

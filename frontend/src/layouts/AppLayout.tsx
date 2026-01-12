@@ -2,11 +2,9 @@ import { Outlet } from "react-router-dom";
 
 const AppLayout = () => {
     return (
-        <div className="min-h-screen flex">
+        <div className="min-h-screen flex overflow-hidden">
             <main className="flex-1 flex flex-col">
-                <div className="flex-1 overflow-hidden">
-                    <Outlet />
-                </div>
+                <Outlet />
             </main>
         </div>
     );
