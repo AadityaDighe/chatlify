@@ -3,12 +3,10 @@ import { Server } from "socket.io";
 export let io = null;
 export const userSocketMap = {}; // { userId: socketId }
 
-const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
-
 export const initSocket = (server) => {
     io = new Server(server, {
         cors: {
-            origin: CLIENT_URL,
+            origin: ["http://localhost:5173", "https://chatlify-frontend.vercel.app"],
             methods: ["GET", "POST"],
             credentials: true
         },

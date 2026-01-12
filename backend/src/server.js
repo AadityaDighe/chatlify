@@ -22,12 +22,21 @@ const PORT = process.env.PORT || 10000;
 const app = express();
 const server = http.createServer(app);
 
-const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
+const allowedOrigins = [
+    "http://localhost:5173", // local dev
+    "https://chatlify-frontend.vercel.app" // production
+];
 
 // Middleware
 
 app.use(cors({
-    origin: CLIENT_URL,
+    origin: (origin, callback) => {
+        if (!origin) return callback(null, true); // allow Postman, server-to-server requests
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+        return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true
 }));
 
