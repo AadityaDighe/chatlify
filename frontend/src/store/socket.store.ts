@@ -25,6 +25,8 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
 
         const socket = io(BACKEND_URL, {
             query: { userId },
+            withCredentials: true,
+            transports: ["websocket", "polling"],
         });
 
         set({ socket });

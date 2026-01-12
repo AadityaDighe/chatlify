@@ -3,13 +3,14 @@ import { Server } from "socket.io";
 export let io = null;
 export const userSocketMap = {}; // { userId: socketId }
 
+const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
+
 export const initSocket = (server) => {
     io = new Server(server, {
         cors: {
-            // origin: "*",
-            origin: process.env.CLIENT_URL || "http://localhost:5173",
-            // methods: ["GET", "POST"],
+            origin: CLIENT_URL,
             methods: ["GET", "POST"],
+            credentials: true
         },
     });
 
