@@ -46,9 +46,14 @@ await connectDB();
 export const io = initSocket(server);  // ← EXPORT io directly like old version
 export const userSocketMap = getUserSocketMap();
 
-
-
 // start server
-server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+
+if (process.env.NODE_ENV != "production") {
+    server.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+}
+
+// exporting for vercel
+
+export default server;
