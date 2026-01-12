@@ -18,7 +18,7 @@ import messageRouter from './routes/messageRoutes.js';
 import { initSocket, getUserSocketMap } from "./socket/index.js";
 import { errorHandler } from "../middleware/errorHandler.js";
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 10000;
 const app = express();
 const server = http.createServer(app);
 
@@ -48,11 +48,9 @@ export const userSocketMap = getUserSocketMap();
 
 // start server
 
-if (process.env.NODE_ENV != "production") {
-    server.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
-    });
-}
+server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
 
 // exporting for vercel
 
