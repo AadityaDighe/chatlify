@@ -5,6 +5,10 @@ import assets from "../../assets/assets";
 import { type Message } from "../../store/chat.store";
 import ImageUploadProgress from "./ImageUploadProgress";
 
+import { useSocketStore } from "../../store/socket.store";
+import { useChatStore } from "../../store/chat.store";
+import { useRef } from "react"
+
 interface ChatInputProps {
   replyToMessage: Message | null;
   setReplyToMessage: (msg: Message | null) => void;
@@ -28,9 +32,37 @@ export const ChatInput = ({
 }: ChatInputProps) => {
   const [input, setInput] = useState("");
 
+
+  const socket = useSocketStore((s) => s.socket);
+  const selectedUser = useChatStore((s) => s.selectedUser);
+  const typingTimeoutRef = useRef<number | null>(null);
+
+
+  const handleTyping = (value: string) => {
+    setInput(value);
+
+    if (!socket || !selectedUser) return;
+
+    socket.emit("userTyping", selectedUser._id);
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    typingTimeoutRef.current = window.setTimeout(() => {
+      socket.emit("userStopTyping", selectedUser._id);
+    }, 1200);
+  };
+
+
+
   const handleSendMessage = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!input.trim()) return;
+
+    if (socket && selectedUser) {
+      socket.emit("userStopTyping", selectedUser._id);
+    }
 
     try {
       await onSendText(input.trim(), replyToMessage?._id);
@@ -55,6 +87,10 @@ export const ChatInput = ({
       return;
     }
 
+    if (socket && selectedUser) {
+      socket.emit("userStopTyping", selectedUser._id);
+    }
+
     setPreviewFile(file);
 
     try {
@@ -69,6 +105,7 @@ export const ChatInput = ({
   };
 
   const removePreview = () => setPreviewFile(null);
+
 
   return (
     <form
@@ -121,7 +158,7 @@ export const ChatInput = ({
         <div className="flex items-center">
           <input
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => handleTyping(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSendMessage(e)}
             placeholder={isUploading ? "Uploading image..." : "Send Message"}
             className="flex-1 text-sm p-3 bg-transparent outline-none text-white"

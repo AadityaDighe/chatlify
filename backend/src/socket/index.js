@@ -25,14 +25,14 @@ export const initSocket = (server) => {
         io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
         // ← ADD TYPING EVENTS
-        socket.on("typing", (receiverId) => {
+        socket.on("userTyping", (receiverId) => {
             const receiverSocketId = userSocketMap[receiverId];
             if (receiverSocketId) {
                 io.to(receiverSocketId).emit("userTyping", userId);
             }
         });
 
-        socket.on("stopTyping", (receiverId) => {
+        socket.on("userStopTyping", (receiverId) => {
             const receiverSocketId = userSocketMap[receiverId];
             if (receiverSocketId) {
                 io.to(receiverSocketId).emit("userStopTyping", userId);

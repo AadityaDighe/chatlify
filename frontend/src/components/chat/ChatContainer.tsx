@@ -420,23 +420,26 @@ const ChatContainer = () => {
     const messagesByConversation = useChatStore((s) => s.messagesByConversation);
     const scrollEnd = useRef<HTMLDivElement | null>(null);
 
+    const socket = useSocketStore((s) => s.socket);
+
     // Upload socket listener
     useEffect(() => {
-        const socket = useSocketStore.getState().socket;
+        // const socket = useSocketStore.getState().socket;
+
         if (!socket) return;
 
         socket.on("upload:started", () => {
             setIsUploading(true);
             setUploadProgress(0);
-            let progress = 0;
-            const interval = setInterval(() => {
-                if (progress >= 90) {
-                    clearInterval(interval);
-                    return;
-                }
-                progress += Math.random() * 10 + 5;
-                setUploadProgress(Math.min(progress, 90));
-            }, 300);
+            // let progress = 0;
+            // const interval = setInterval(() => {
+            //     if (progress >= 90) {
+            //         clearInterval(interval);
+            //         return;
+            //     }
+            //     progress += Math.random() * 10 + 5;
+            //     setUploadProgress(Math.min(progress, 90));
+            // }, 300);
         });
 
         socket.on("upload:completed", () => {
@@ -452,18 +455,25 @@ const ChatContainer = () => {
             socket.off("upload:started");
             socket.off("upload:completed");
         };
-    }, []);
+    }, [socket]);
 
     // Typing listeners
     useEffect(() => {
-        const socket = useSocketStore.getState().socket;
-        if (!socket) return;
+        // const socket = useSocketStore.getState().socket;
+        if (!socket) {
+            console.log("❌ socket not ready yet (typing listener)");
+            return;
+        }
+
+        console.log("🟢 attaching typing listeners");
 
         socket.on("userTyping", (userId: string) => {
+            console.log("📥 userTyping received:", userId);
             setTypingUsers((prev) => new Set(prev).add(userId));
         });
 
         socket.on("userStopTyping", (userId: string) => {
+            console.log("📥 userStopTyping received:", userId);
             setTypingUsers((prev) => {
                 const newSet = new Set(prev);
                 newSet.delete(userId);
@@ -472,10 +482,11 @@ const ChatContainer = () => {
         });
 
         return () => {
+            console.log("🧹 removing typing listeners");
             socket.off("userTyping");
             socket.off("userStopTyping");
         };
-    }, []);
+    }, [socket]);
 
     // Load messages
     useEffect(() => {

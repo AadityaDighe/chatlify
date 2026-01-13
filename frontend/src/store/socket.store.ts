@@ -42,7 +42,11 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
         const socket = get().socket;
         if (!socket) return;
 
-        socket.off();
+        // socket.off();
+
+        socket.off("newMessage");
+        socket.off("getOnlineUsers");
+        socket.off("messageDeleted");
 
         socket.on("newMessage", (message) => {
             useChatStore.getState().onSocketMessage(message);
